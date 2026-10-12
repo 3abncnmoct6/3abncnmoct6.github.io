@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>수학 게임 모음</title>
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --card: #ffffff;
+    --text: #1d2433;
+    --muted: #6b7489;
+    --accent: #4f6cf7;
+    --border: #e2e6ef;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12151d;
+      --card: #1c212c;
+      --text: #e9ecf3;
+      --muted: #98a1b5;
+      --accent: #7b91ff;
+      --border: #2c3342;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  main { width: 100%; max-width: 720px; text-align: center; }
+  h1 { margin: 0 0 8px; font-size: 32px; }
+  p.sub { margin: 0 0 32px; color: var(--muted); line-height: 1.6; }
+  .games {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  a.game {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 24px;
+    text-align: left;
+    box-shadow: 0 10px 30px rgba(0,0,0,.06);
+    transition: transform .15s, border-color .15s, box-shadow .15s;
+  }
+  a.game:hover, a.game:focus-visible {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 14px 34px rgba(79,108,247,.18);
+    outline: none;
+  }
+  .icon { font-size: 40px; margin-bottom: 12px; }
+  .game h2 { margin: 0 0 8px; font-size: 21px; }
+  .game p { margin: 0 0 18px; color: var(--muted); font-size: 15px; line-height: 1.6; }
+  .play { color: var(--accent); font-weight: 700; }
+</style>
+</head>
+<body>
+<main>
+  <h1>🎮 수학 게임 모음</h1>
+  <p class="sub">하고 싶은 게임을 골라보세요!</p>
+  <div class="games">
+    <a class="game" href="https://3abncnmoct6.github.io/math.html">
+      <div class="icon">⚡</div>
+      <h2>스피드 수학 챌린지</h2>
+      <p>간단한 사칙연산 20문제! 빠르고 정확하게 풀수록 점수가 높아져요.</p>
+      <span class="play">플레이 →</span>
+    </a>
+    <a class="game" href="https://3abncnmoct6.github.io/graph.html">
+      <div class="icon">📈</div>
+      <h2>그래프 따라 그리기</h2>
+      <p>함수식을 보고 좌표평면에 그래프를 그려보세요. 실제 그래프와 비슷할수록 고득점!</p>
+      <span class="play">플레이 →</span>
+    </a>
+  </div>
+</main>
+</body>
+</html>
