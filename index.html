@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>스피드 수학 챌린지</title>
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --card: #ffffff;
+    --text: #1d2433;
+    --muted: #6b7489;
+    --accent: #4f6cf7;
+    --accent-dark: #3a55d6;
+    --good: #1fa463;
+    --bad: #e0464b;
+    --border: #e2e6ef;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12151d;
+      --card: #1c212c;
+      --text: #e9ecf3;
+      --muted: #98a1b5;
+      --border: #2c3342;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 28px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.06);
+    text-align: center;
+  }
+  h1 { margin: 0 0 8px; font-size: 28px; }
+  p.sub { margin: 0 0 24px; color: var(--muted); line-height: 1.6; }
+  .rules {
+    text-align: left;
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--muted);
+  }
+  .rules b { color: var(--text); }
+  button {
+    font: inherit;
+    font-weight: 700;
+    font-size: 17px;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 28px;
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+    transition: background .15s, transform .05s;
+  }
+  button:hover { background: var(--accent-dark); }
+  button:active { transform: scale(.98); }
+  .hidden { display: none !important; }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    font-size: 15px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .topbar b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .progress {
+    height: 8px;
+    background: var(--bg);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .progress > div {
+    height: 100%;
+    width: 0;
+    background: var(--accent);
+    transition: width .25s;
+  }
+  .question {
+    font-size: 52px;
+    font-weight: 800;
+    margin: 10px 0 24px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 1px;
+  }
+  .answer-row { display: flex; gap: 10px; }
+  input {
+    flex: 1;
+    min-width: 0;
+    font: inherit;
+    font-size: 24px;
+    text-align: center;
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+  }
+  input:focus { border-color: var(--accent); }
+  input.good { border-color: var(--good); }
+  input.bad { border-color: var(--bad); animation: shake .3s; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+  .feedback { height: 24px; margin-top: 14px; font-weight: 700; }
+  .feedback.good { color: var(--good); }
+  .feedback.bad { color: var(--bad); }
+  .qtimer { margin-top: 6px; font-size: 13px; color: var(--muted); }
+
+  .big-score { font-size: 64px; font-weight: 900; color: var(--accent); margin: 8px 0 4px; }
+  .grade { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .stat { background: var(--bg); border-radius: 12px; padding: 12px 6px; }
+  .stat .v { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .stat .l { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .best { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
+  .new-best { color: var(--good); font-weight: 700; }
+  details { text-align: left; margin-bottom: 20px; }
+  summary { cursor: pointer; color: var(--muted); font-size: 14px; margin-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 6px 4px; border-bottom: 1px solid var(--border); text-align: center; }
+  th { color: var(--muted); font-weight: 600; }
+  td.ok { color: var(--good); font-weight: 700; }
+  td.ng { color: var(--bad); font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <!-- 시작 화면 -->
+  <section id="start">
+    <h1>⚡ 스피드 수학 챌린지</h1>
+    <p class="sub">간단한 수학 문제 20개!<br>빠르고 정확하게 풀수록 점수가 올라갑니다.</p>
+    <div class="rules">
+      • 덧셈 · 뺄셈 · 곱셈 · 나눗셈 문제 <b>20개</b><br>
+      • 정답 시 <b>기본 50점</b> + <b>속도 보너스 최대 50점</b><br>
+      &nbsp;&nbsp;(빨리 풀수록 보너스↑, 10초가 지나면 보너스 0)<br>
+      • 오답은 <b>0점</b>, 바로 다음 문제로 넘어갑니다<br>
+      • 만점은 <b>2000점</b> · 답 입력 후 <b>Enter</b>
+    </div>
+    <div class="best" id="startBest"></div>
+    <button id="startBtn">시작하기</button>
+  </section>
+
+  <!-- 게임 화면 -->
+  <section id="game" class="hidden">
+    <div class="topbar">
+      <span>문제 <b id="qNum">1</b> / 20</span>
+      <span>점수 <b id="scoreNow">0</b></span>
+      <span>⏱ <b id="totalTime">0.0</b>s</span>
+    </div>
+    <div class="progress"><div id="bar"></div></div>
+    <div class="question" id="question">3 + 4 = ?</div>
+    <form class="answer-row" id="answerForm" autocomplete="off">
+      <input id="answer" type="text" inputmode="numeric" pattern="-?[0-9]*" placeholder="정답" autofocus>
+      <button type="submit">확인</button>
+    </form>
+    <div class="feedback" id="feedback"></div>
+    <div class="qtimer">이 문제 경과: <span id="qTime">0.0</span>s · 보너스 <span id="bonus">50</span>점</div>
+  </section>
+
+  <!-- 결과 화면 -->
+  <section id="result" class="hidden">
+    <h1>결과</h1>
+    <div class="big-score" id="finalScore">0</div>
+    <div class="grade" id="grade"></div>
+    <div class="stats">
+      <div class="stat"><div class="v" id="rCorrect">0</div><div class="l">정답 수</div></div>
+      <div class="stat"><div class="v" id="rTime">0</div><div class="l">총 시간(초)</div></div>
+      <div class="stat"><div class="v" id="rAvg">0</div><div class="l">평균(초/문제)</div></div>
+    </div>
+    <div class="best" id="resultBest"></div>
+    <details>
+      <summary>문제별 기록 보기</summary>
+      <table>
+        <thead><tr><th>#</th><th>문제</th><th>내 답</th><th>정답</th><th>시간</th><th>점수</th></tr></thead>
+        <tbody id="review"></tbody>
+      </table>
+    </details>
+    <button id="retryBtn">다시 하기</button>
+  </section>
+
+</div>
+
+<script>
+  const TOTAL = 20;
+  const BASE = 50;        // 정답 기본 점수
+  const MAX_BONUS = 50;   // 최대 속도 보너스
+  const BONUS_LIMIT = 10; // 보너스가 0이 되는 시간(초)
+
+  const $ = id => document.getElementById(id);
+  let problems = [], idx = 0, score = 0, records = [];
+  let gameStart = 0, qStart = 0, tick = null, locked = false;
+
+  const rand = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+
+  function makeProblem() {
+    const op = ['+', '-', '×', '÷'][rand(0, 3)];
+    let a, b, ans;
+    switch (op) {
+      case '+': a = rand(1, 50); b = rand(1, 50); ans = a + b; break;
+      case '-': a = rand(5, 60); b = rand(1, a); ans = a - b; break;
+      case '×': a = rand(2, 9);  b = rand(2, 12); ans = a * b; break;
+      case '÷': b = rand(2, 9);  ans = rand(2, 12); a = b * ans; break;
+    }
+    return { text: `${a} ${op} ${b}`, ans };
+  }
+
+  function bonusFor(sec) {
+    return Math.max(0, Math.round(MAX_BONUS * (1 - sec / BONUS_LIMIT)));
+  }
+
+  function getBest() {
+    try { return parseInt(localStorage.getItem('speedMathBest')) || 0; } catch { return 0; }
+  }
+  function setBest(v) {
+    try { localStorage.setItem('speedMathBest', v); } catch {}
+  }
+  function showBest(el) {
+    const b = getBest();
+    el.textContent = b ? `🏆 최고 기록: ${b}점` : '';
+  }
+
+  function show(id) {
+    ['start', 'game', 'result'].forEach(s => $(s).classList.toggle('hidden', s !== id));
+  }
+
+  function startGame() {
+    problems = Array.from({ length: TOTAL }, makeProblem);
+    idx = 0; score = 0; records = [];
+    $('scoreNow').textContent = 0;
+    show('game');
+    gameStart = performance.now();
+    clearInterval(tick);
+    tick = setInterval(updateTimers, 50);
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    const p = problems[idx];
+    $('qNum').textContent = idx + 1;
+    $('bar').style.width = (idx / TOTAL * 100) + '%';
+    $('question').textContent = `${p.text} = ?`;
+    const input = $('answer');
+    input.value = '';
+    input.className = '';
+    input.focus();
+    $('feedback').textContent = '';
+    $('feedback').className = 'feedback';
+    qStart = performance.now();
+    locked = false;
+  }
+
+  function updateTimers() {
+    const now = performance.now();
+    $('totalTime').textContent = ((now - gameStart) / 1000).toFixed(1);
+    if (!locked) {
+      const q = (now - qStart) / 1000;
+      $('qTime').textContent = q.toFixed(1);
+      $('bonus').textContent = bonusFor(q);
+    }
+  }
+
+  function submit(e) {
+    e.preventDefault();
+    if (locked) return;
+    const raw = $('answer').value.trim();
+    if (raw === '' || isNaN(Number(raw))) { $('answer').focus(); return; }
+    locked = true;
+
+    const sec = (performance.now() - qStart) / 1000;
+    const p = problems[idx];
+    const correct = Number(raw) === p.ans;
+    const pts = correct ? BASE + bonusFor(sec) : 0;
+    score += pts;
+    records.push({ text: p.text, mine: raw, ans: p.ans, sec, pts, correct });
+
+    $('scoreNow').textContent = score;
+    $('answer').className = correct ? 'good' : 'bad';
+    $('feedback').className = 'feedback ' + (correct ? 'good' : 'bad');
+    $('feedback').textContent = correct ? `정답! +${pts}점` : `오답! 정답은 ${p.ans}`;
+
+    setTimeout(() => {
+      idx++;
+      if (idx < TOTAL) loadQuestion();
+      else endGame();
+    }, correct ? 400 : 900);
+  }
+
+  function endGame() {
+    clearInterval(tick);
+    $('bar').style.width = '100%';
+    const total = (performance.now() - gameStart) / 1000;
+    const correctCnt = records.filter(r => r.correct).length;
+    const answerTime = records.reduce((s, r) => s + r.sec, 0);
+
+    $('finalScore').textContent = score;
+    $('rCorrect').textContent = `${correctCnt}/${TOTAL}`;
+    $('rTime').textContent = total.toFixed(1);
+    $('rAvg').textContent = (answerTime / TOTAL).toFixed(1);
+
+    const ratio = score / (TOTAL * (BASE + MAX_BONUS));
+    $('grade').textContent =
+      ratio >= .9 ? '🚀 계산의 신!' :
+      ratio >= .75 ? '🔥 아주 빨라요!' :
+      ratio >= .6 ? '👍 잘했어요!' :
+      ratio >= .4 ? '🙂 조금만 더!' : '💪 다시 도전해봐요!';
+
+    const prev = getBest();
+    if (score > prev) {
+      setBest(score);
+      $('resultBest').innerHTML = `<span class="new-best">🎉 새로운 최고 기록!</span>${prev ? ` (이전 ${prev}점)` : ''}`;
+    } else {
+      showBest($('resultBest'));
+    }
+
+    $('review').innerHTML = records.map((r, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${r.text}</td>
+        <td class="${r.correct ? 'ok' : 'ng'}">${r.mine}</td>
+        <td>${r.ans}</td>
+        <td>${r.sec.toFixed(1)}s</td>
+        <td>${r.pts}</td>
+      </tr>`).join('');
+
+    show('result');
+    $('retryBtn').focus();
+  }
+
+  $('startBtn').addEventListener('click', startGame);
+  $('retryBtn').addEventListener('click', startGame);
+  $('answerForm').addEventListener('submit', submit);
+  showBest($('startBest'));
+</script>
+</body>
+</html>
